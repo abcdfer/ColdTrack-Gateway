@@ -157,7 +157,7 @@ Las dependencias utilizadas actualmente son:
 
 ## 7. Instalar la extensión de Tinkercad
 
-El prototipo utiliza la extensión `tinkercad-serial-bridge`. La extensión permite capturar la salida del Monitor Serie de Tinkercad y enviarla a un servidor local.
+El prototipo utiliza la extensión `tinkercad-serial-bridge`[https://microsoftedge.microsoft.com/addons/detail/tinkercadserialbridge/madkdbjchopgbjhjnpoandbmmjfajcmb?hl=es-es]. La extensión permite capturar la salida del Monitor Serie de Tinkercad y enviarla a un servidor local.
 
 1. Instalarla desde la tienda de extensiones compatible con el navegador utilizado.
 2. Una vez instalada, abrir el circuito de ColdTrack en Tinkercad.
