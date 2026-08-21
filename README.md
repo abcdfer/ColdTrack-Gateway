@@ -1,6 +1,1203 @@
+
+Gemini
+
+Chatear
+
+Spark
+beta
+Nueva conversación
+Buscar conversaciones
+Imágenes
+Vídeos
+Biblioteca
+Gems
+Nuevo cuaderno
+GIS
+Modulación y Multiplexación de Señales de Comunicación
+Todos los cuadernos
+PARCIAL DSW
+GIS
+INV_OPERATIVA
+SIMULACION
+AUDITORIA EN SISTEMAS
+FISICA 2
+DESARROLLO
+MAT_SUP
+BASE DE DATOS
+ColdTrack Gateway README Generation
+Conectar Repositorio Local a GitHub
+Tinkercad Serial Monitor to API
+Instalar Drivers Arduino: Guía Esencial
+Descifrando Mensaje Oculto en Documento
+Lógica de Ingeniería de Sistemas: Patrones y Solución
+Charlas IA: Técnica vs. Estrategia
+Clonar Repositorio Git con Rama Específica
+Configurar Alias de Ejecución de Python
+Aumentar Volumen Micrófono Windows 11
+Acceder Configuración Módem Claro Fibra
+Etapa 3 requiere Etapa 2 finalizada
+Gestión de Cuentas Privilegiadas Bancarias
+Solicitud de Prórroga TFI
+Simplificación de Datos para Modelo
+TPI: Optimización de Recursos Hospitalarios
+Cerrar formulario de soporte Uber
+Diagnosticar Disco PS4 en PC
+Matemática Superior: Guía de Estudio Final
+Creación de Horario Universitario en Excel
+De NIMBY a NOPE: Análisis Geoespacial
+Resumen del Simulador de Planta
+Imagen de simulador PNG
+Asumiendo Rol de Ingeniero Backend
+Aplicación de COBIT en Proyectos
+Analista Profesional De Fútbol: Rol Asumido
+Capacidades de IA en Google Drive
+Conversación con Gemini
+pasame el siguiente texto "ColdTrack Gateway
+
+Gateway de integración para el prototipo ColdTrack, encargado de recibir la telemetría generada por un Arduino UNO simulado en Tinkercad, validarla y reenviarla mediante HTTP a una API local de ColdTrack.
+
+El objetivo de este repositorio es permitir probar el flujo completo sin necesidad de disponer de hardware físico.
+
+```text
+
+Sensores simulados
+
+      ↓
+
+Arduino UNO en Tinkercad
+
+      ↓
+
+Monitor Serie (JSON)
+
+      ↓
+
+tinkercad-serial-bridge
+
+      ↓
+
+ColdTrack Gateway (Python / Flask) :8080
+
+      ↓
+
+HTTP POST
+
+      ↓
+
+ColdTrack API (Python / Flask) :5000
+
+```
+
+---
+
+1. Componentes del prototipo
+
+Este repositorio utiliza dos procesos Python:
+
+Componente Archivo Puerto Responsabilidad
+
+ColdTrack Gateway `gateway.py` `8080` Recibe la salida del Monitor Serie de Tinkercad y reenvía la telemetría válida a la API
+
+ColdTrack API `api.py` `5000` Recibe la telemetría mediante `POST /api/telemetry` y la mantiene temporalmente en memoria
+
+La comunicación entre Tinkercad y el Gateway se realiza mediante la extensión tinkercad-serial-bridge.
+
+---
+
+2. Requisitos
+
+Para ejecutar el proyecto se necesita:
+
+Windows 10/11, Linux o macOS.
+
+Un navegador basado en Chromium compatible con la extensión utilizada, por ejemplo Microsoft Edge o Google Chrome.
+
+Una cuenta de Autodesk con acceso a Tinkercad Circuits.
+
+Python 3.10 o superior.
+
+Acceso al circuito de Tinkercad utilizado por ColdTrack.
+
+La extensión tinkercad-serial-bridge instalada y habilitada.
+
+No se necesita un Arduino físico.
+
+---
+
+3. Instalación de Python
+
+Windows
+
+Descargar Python desde el sitio oficial:
+
+`https://www.python.org/downloads/`
+
+Ejecutar el instalador.
+
+Antes de comenzar la instalación, marcar:
+
+```text
+
+   Add python.exe to PATH
+
+   ```
+
+Finalizar la instalación.
+
+Abrir PowerShell o CMD y comprobar:
+
+```powershell
+
+   python --version
+
+   ```
+
+Debería mostrarse una versión similar a:
+
+```text
+
+   Python 3.12.x
+
+   ```
+
+Si Windows no reconoce `python`, probar:
+
+```powershell
+
+py --version
+
+```
+
+En ese caso, los comandos de este README que comienzan con `python` pueden ejecutarse reemplazándolo por `py`.
+
+Linux
+
+En distribuciones basadas en Debian/Ubuntu:
+
+```bash
+
+sudo apt update
+
+sudo apt install python3 python3-venv python3-pip
+
+```
+
+Comprobar:
+
+```bash
+
+python3 --version
+
+```
+
+macOS
+
+Puede utilizarse la versión disponible desde Python.org o instalar Python mediante Homebrew:
+
+```bash
+
+brew install python
+
+```
+
+Comprobar:
+
+```bash
+
+python3 --version
+
+```
+
+---
+
+4. Obtener el proyecto
+
+Clonar el repositorio o descargarlo como ZIP.
+
+Luego abrir una terminal dentro de la carpeta del proyecto.
+
+Ejemplo en Windows:
+
+```powershell
+
+cd C:\ruta\al\repositorio\ColdTrack-Gateway
+
+```
+
+La carpeta debería contener, como mínimo:
+
+```text
+
+ColdTrack-Gateway/
+
+├── api.py
+
+├── gateway.py
+
+└── README.md
+
+```
+
+---
+
+5. Crear el entorno virtual
+
+Se recomienda utilizar un entorno virtual para mantener aisladas las dependencias del proyecto.
+
+Windows
+
+Crear el entorno:
+
+```powershell
+
+python -m venv .venv
+
+```
+
+Activarlo:
+
+```powershell
+
+.venv\Scripts\Activate.ps1
+
+```
+
+Si PowerShell impide ejecutar el script de activación, puede habilitarlo para el usuario actual con:
+
+```powershell
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+```
+
+Luego volver a ejecutar:
+
+```powershell
+
+.venv\Scripts\Activate.ps1
+
+```
+
+Cuando esté activo debería aparecer:
+
+```text
+
+(.venv)
+
+```
+
+al comienzo de la terminal.
+
+Linux/macOS
+
+```bash
+
+python3 -m venv .venv
+
+source .venv/bin/activate
+
+```
+
+---
+
+6. Instalar dependencias
+
+Con el entorno virtual activo:
+
+```bash
+
+pip install flask requests
+
+```
+
+Las dependencias utilizadas actualmente son:
+
+`Flask`: servidor HTTP para el Gateway y la API.
+
+`requests`: envío de telemetría desde el Gateway hacia la API.
+
+---
+
+7. Instalar la extensión de Tinkercad
+
+El prototipo utiliza la extensión:
+
+```text
+
+tinkercad-serial-bridge
+
+```
+
+La extensión permite capturar la salida del Monitor Serie de Tinkercad y enviarla a un servidor local.
+
+Instalarla desde la tienda de extensiones compatible con el navegador utilizado.
+
+Una vez instalada:
+
+Abrir el circuito de ColdTrack en Tinkercad.
+
+Abrir el popup de `tinkercad-serial-bridge`.
+
+Configurar:
+
+```text
+
+   Server:
+
+   http://127.0.0.1:8080
+
+
+
+   Upload Interval(ms):
+
+   2000
+
+
+
+   Cmd Poll Interval(ms):
+
+   2000
+
+
+
+   Enable Bridge:
+
+   ON
+
+   ```
+
+Presionar:
+
+```text
+
+   Save Settings
+
+   ```
+
+El valor `2000 ms` es adecuado para el prototipo actual y evita generar tráfico HTTP innecesario durante las pruebas.
+
+> Si se utilizaron anteriormente otras extensiones para capturar el Monitor Serie de Tinkercad, se recomienda deshabilitarlas para evitar interferencias.
+
+---
+
+8. Formato enviado por Arduino
+
+El Arduino virtual genera una única línea JSON con la telemetría del equipo.
+
+Ejemplo:
+
+```json
+
+{
+
+  "deviceId": "CT-001",
+
+  "uptimeMs": 5070,
+
+  "tempInterior": 0.8,
+
+  "tempCondensador": 24.8,
+
+  "tempSuccion": 24.8,
+
+  "presionBaja": 47,
+
+  "presionAlta": 10,
+
+  "compresor": 100,
+
+  "fanSolicitado": 0,
+
+  "fanPWM": 0,
+
+  "fanRpm": 0.0,
+
+  "estado": "NORMAL",
+
+  "diagnostico": "SIN_FALLAS",
+
+  "proteccionAlta": false,
+
+  "proteccionBaja": false,
+
+  "ordenParoCompresor": false
+
+}
+
+```
+
+En el Monitor Serie de Tinkercad el JSON aparece en una sola línea.
+
+El diagnóstico es determinado por Arduino. El Gateway no recalcula fallas: únicamente recibe, valida y transporta la información.
+
+---
+
+9. Ejecutar ColdTrack API
+
+Abrir una primera terminal dentro del proyecto.
+
+Activar el entorno virtual si todavía no está activo.
+
+Windows
+
+```powershell
+
+.venv\Scripts\Activate.ps1
+
+python api.py
+
+```
+
+Linux/macOS
+
+```bash
+
+source .venv/bin/activate
+
+python3 api.py
+
+```
+
+Debería mostrarse algo similar a:
+
+```text
+
+==========================================
+
+          COLDTRACK API
+
+==========================================
+
+Servidor: http://127.0.0.1:5000
+
+Endpoint: POST /api/telemetry
+
+==========================================
+
+```
+
+La API debe permanecer ejecutándose.
+
+Comprobar que la API funciona
+
+Abrir en el navegador:
+
+```text
+
+http://127.0.0.1:5000/health
+
+```
+
+La respuesta esperada es similar a:
+
+```json
+
+{
+
+  "service": "ColdTrack API",
+
+  "status": "ok"
+
+}
+
+```
+
+---
+
+10. Ejecutar ColdTrack Gateway
+
+Abrir una segunda terminal dentro de la carpeta del proyecto.
+
+Activar nuevamente el entorno virtual.
+
+Windows
+
+```powershell
+
+.venv\Scripts\Activate.ps1
+
+python gateway.py
+
+```
+
+Linux/macOS
+
+```bash
+
+source .venv/bin/activate
+
+python3 gateway.py
+
+```
+
+Debería mostrarse:
+
+```text
+
+==========================================
+
+       COLDTRACK IOT GATEWAY
+
+==========================================
+
+Tinkercad:
+
+http://127.0.0.1:8080
+
+
+
+ColdTrack API:
+
+http://127.0.0.1:5000/api/telemetry
+
+==========================================
+
+```
+
+El Gateway debe permanecer ejecutándose junto con `api.py`.
+
+---
+
+11. Iniciar la simulación de Tinkercad
+
+Con `api.py` y `gateway.py` ejecutándose:
+
+Abrir el circuito ColdTrack en Tinkercad.
+
+Abrir el Monitor en serie.
+
+Confirmar que `tinkercad-serial-bridge` esté habilitado.
+
+Verificar que el servidor configurado sea:
+
+```text
+
+   http://127.0.0.1:8080
+
+   ```
+
+Presionar Iniciar simulación.
+
+El Arduino comenzará a publicar líneas JSON en el Monitor Serie.
+
+La extensión enviará el contenido al Gateway mediante:
+
+```text
+
+GET /send?out=...
+
+```
+
+La misma extensión consulta periódicamente:
+
+```text
+
+GET /cmd
+
+```
+
+Esta segunda ruta está reservada para una futura comunicación desde Python hacia Arduino. Actualmente devuelve una respuesta vacía y es normal observar estas consultas.
+
+---
+
+12. Flujo esperado
+
+Cuando el Gateway recibe un JSON válido:
+
+```text
+
+Tinkercad
+
+   ↓
+
+GET /send
+
+   ↓
+
+gateway.py
+
+   ↓
+
+validación y deduplicación
+
+   ↓
+
+POST /api/telemetry
+
+   ↓
+
+api.py
+
+```
+
+El Gateway debería mostrar, por ejemplo:
+
+```text
+
+==========================================
+
+          COLDTRACK GATEWAY
+
+==========================================
+
+Dispositivo:  CT-001
+
+Uptime:       4070 ms
+
+Estado:       NORMAL
+
+Diagnostico:  SIN_FALLAS
+
+------------------------------------------
+
+Temp interior:     0.8 C
+
+Temp condensador:  24.8 C
+
+Temp succion:      24.8 C
+
+Presion baja:      47 %
+
+Presion alta:      10 %
+
+Compresor:         100 %
+
+Fan solicitado:    0 %
+
+Fan PWM:           0
+
+Fan RPM:           0.0
+
+------------------------------------------
+
+Proteccion alta:   False
+
+Proteccion baja:   False
+
+Parar compresor:   False
+
+==========================================
+
+
+
+[API] Telemetria enviada correctamente (201)
+
+```
+
+En la terminal de la API debería aparecer:
+
+```text
+
+==========================================
+
+          COLDTRACK API
+
+==========================================
+
+Dispositivo:  CT-001
+
+Estado:       NORMAL
+
+Diagnostico:  SIN_FALLAS
+
+Recibido:     2026-...
+
+==========================================
+
+```
+
+y la petición:
+
+```text
+
+POST /api/telemetry HTTP/1.1 201
+
+```
+
+---
+
+13. Consultar la última telemetría
+
+Mientras `api.py` permanezca ejecutándose se puede consultar la última lectura de un dispositivo.
+
+Para `CT-001`:
+
+```text
+
+http://127.0.0.1:5000/api/telemetry/latest/CT-001
+
+```
+
+La API devolverá el último paquete almacenado en memoria.
+
+Ejemplo:
+
+```json
+
+{
+
+  "deviceId": "CT-001",
+
+  "estado": "NORMAL",
+
+  "diagnostico": "SIN_FALLAS",
+
+  "receivedAt": "2026-08-21T09:33:39.583864+00:00"
+
+}
+
+```
+
+---
+
+14. Endpoints disponibles
+
+Gateway — puerto 8080
+
+Método Endpoint Descripción
+
+GET `/send` Recibe la salida del Monitor Serie enviada por la extensión
+
+GET `/cmd` Endpoint de polling reservado para futuros comandos hacia Arduino
+
+ColdTrack API — puerto 5000
+
+Método Endpoint Descripción
+
+GET `/health` Comprueba que la API esté disponible
+
+POST `/api/telemetry` Recibe telemetría desde el Gateway
+
+GET `/api/telemetry/latest/<device_id>` Devuelve la última lectura del dispositivo indicado
+
+---
+
+15. Prueba recomendada
+
+Para verificar el flujo completo:
+
+Ejecutar `api.py`.
+
+Ejecutar `gateway.py`.
+
+Abrir Tinkercad.
+
+Activar `tinkercad-serial-bridge`.
+
+Abrir el Monitor Serie.
+
+Iniciar la simulación.
+
+Modificar el sensor de temperatura interior.
+
+Por ejemplo:
+
+```text
+
+24.8 °C
+
+```
+
+puede generar:
+
+```text
+
+Estado: CRITICO
+
+Diagnostico: TEMPERATURA_ELEVADA
+
+```
+
+Luego modificarlo a un valor normal, por ejemplo:
+
+```text
+
+0.8 °C
+
+```
+
+y comprobar que el Gateway y la API reciben:
+
+```text
+
+Estado: NORMAL
+
+Diagnostico: SIN_FALLAS
+
+```
+
+Si ambos cambios aparecen automáticamente en las dos terminales, el flujo está funcionando correctamente.
+
+---
+
+"
+
+a un formato que pueda copiar y pegar dentro de un readme de github. (Un unico archivo .md )
+
+1. Componentes del prototipo
+Este repositorio utiliza dos procesos Python:
+
+Componente	Archivo	Puerto	Responsabilidad
+ColdTrack Gateway	gateway.py	8080	Recibe la salida del Monitor Serie de Tinkercad y reenvía la telemetría válida a la API
+ColdTrack API	api.py	5000	Recibe la telemetría mediante POST /api/telemetry y la mantiene temporalmente en memoria
+La comunicación entre Tinkercad y el Gateway se realiza mediante la extensión tinkercad-serial-bridge.
+
+2. Requisitos
+Para ejecutar el proyecto se necesita:
+
+Windows 10/11, Linux o macOS.
+
+Un navegador basado en Chromium compatible con la extensión utilizada, por ejemplo Microsoft Edge o Google Chrome.
+
+Una cuenta de Autodesk con acceso a Tinkercad Circuits.
+
+Python 3.10 o superior.
+
+Acceso al circuito de Tinkercad utilizado por ColdTrack.
+
+La extensión tinkercad-serial-bridge instalada y habilitada.
+
+No se necesita un Arduino físico.
+
+3. Instalación de Python
+Windows
+Descargar Python desde el sitio oficial: https://www.python.org/downloads/
+
+Ejecutar el instalador.
+
+Antes de comenzar la instalación, marcar:
+
+Plaintext
+Add python.exe to PATH
+Finalizar la instalación.
+
+Abrir PowerShell o CMD y comprobar:
+
+PowerShell
+python --version
+Debería mostrarse una versión similar a Python 3.12.x.
+
+Si Windows no reconoce python, probar:
+
+PowerShell
+py --version
+En ese caso, los comandos de este README que comienzan con python pueden ejecutarse reemplazándolo por py.
+
+Linux
+En distribuciones basadas en Debian/Ubuntu:
+
+Bash
+sudo apt update
+sudo apt install python3 python3-venv python3-pip
+Comprobar:
+
+Bash
+python3 --version
+macOS
+Puede utilizarse la versión disponible desde Python.org o instalar Python mediante Homebrew:
+
+Bash
+brew install python
+Comprobar:
+
+Bash
+python3 --version
+4. Obtener el proyecto
+Clonar el repositorio o descargarlo como ZIP. Luego abrir una terminal dentro de la carpeta del proyecto.
+
+Ejemplo en Windows:
+
+PowerShell
+cd C:\\ruta\\al\\repositorio\\ColdTrack-Gateway
+La carpeta debería contener, como mínimo:
+
+Plaintext
+ColdTrack-Gateway/
+├── api.py
+├── gateway.py
+└── README.md
+5. Crear el entorno virtual
+Se recomienda utilizar un entorno virtual para mantener aisladas las dependencias del proyecto.
+
+Windows
+Crear el entorno:
+
+PowerShell
+python -m venv .venv
+Activarlo:
+
+PowerShell
+.venv\\Scripts\\Activate.ps1
+Si PowerShell impide ejecutar el script de activación, puede habilitarlo para el usuario actual con:
+
+PowerShell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+Luego volver a ejecutar la activación. Cuando esté activo debería aparecer (.venv) al comienzo de la terminal.
+
+Linux/macOS
+Bash
+python3 -m venv .venv
+source .venv/bin/activate
+6. Instalar dependencias
+Con el entorno virtual activo:
+
+Bash
+pip install flask requests
+Las dependencias utilizadas actualmente son:
+
+Flask: servidor HTTP para el Gateway y la API.
+
+requests: envío de telemetría desde el Gateway hacia la API.
+
+7. Instalar la extensión de Tinkercad
+El prototipo utiliza la extensión tinkercad-serial-bridge. La extensión permite capturar la salida del Monitor Serie de Tinkercad y enviarla a un servidor local.
+
+Instalarla desde la tienda de extensiones compatible con el navegador utilizado.
+
+Una vez instalada, abrir el circuito de ColdTrack en Tinkercad.
+
+Abrir el popup de tinkercad-serial-bridge.
+
+Configurar:
+
+Plaintext
+Server:
+[http://127.0.0.1:8080](http://127.0.0.1:8080)
+
+Upload Interval(ms):
+2000
+
+Cmd Poll Interval(ms):
+2000
+
+Enable Bridge:
+ON
+Presionar Save Settings.
+
+El valor 2000 ms es adecuado para el prototipo actual y evita generar tráfico HTTP innecesario durante las pruebas.
+
+Nota: Si se utilizaron anteriormente otras extensiones para capturar el Monitor Serie de Tinkercad, se recomienda deshabilitarlas para evitar interferencias.
+
+8. Formato enviado por Arduino
+El Arduino virtual genera una única línea JSON con la telemetría del equipo. Ejemplo:
+
+JSON
+{
+  "deviceId": "CT-001",
+  "uptimeMs": 5070,
+  "tempInterior": 0.8,
+  "tempCondensador": 24.8,
+  "tempSuccion": 24.8,
+  "presionBaja": 47,
+  "presionAlta": 10,
+  "compresor": 100,
+  "fanSolicitado": 0,
+  "fanPWM": 0,
+  "fanRpm": 0.0,
+  "estado": "NORMAL",
+  "diagnostico": "SIN_FALLAS",
+  "proteccionAlta": false,
+  "proteccionBaja": false,
+  "ordenParoCompresor": false
+}
+En el Monitor Serie de Tinkercad el JSON aparece en una sola línea. El diagnóstico es determinado por Arduino. El Gateway no recalcula fallas: únicamente recibe, valida y transporta la información.
+
+9. Ejecutar ColdTrack API
+Abrir una primera terminal dentro del proyecto y activar el entorno virtual si todavía no está activo.
+
+Windows
+PowerShell
+.venv\\Scripts\\Activate.ps1
+python api.py
+Linux/macOS
+Bash
+source .venv/bin/activate
+python3 api.py
+Debería mostrarse algo similar a:
+
+Plaintext
+==========================================
+          COLDTRACK API
+==========================================
+Servidor: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+Endpoint: POST /api/telemetry
+==========================================
+La API debe permanecer ejecutándose.
+
+Comprobar que la API funciona
+Abrir en el navegador: http://127.0.0.1:5000/health.
+La respuesta esperada es similar a:
+
+JSON
+{
+  "service": "ColdTrack API",
+  "status": "ok"
+}
+10. Ejecutar ColdTrack Gateway
+Abrir una segunda terminal dentro de la carpeta del proyecto y activar nuevamente el entorno virtual.
+
+Windows
+PowerShell
+.venv\\Scripts\\Activate.ps1
+python gateway.py
+Linux/macOS
+Bash
+source .venv/bin/activate
+python3 gateway.py
+Debería mostrarse:
+
+Plaintext
+==========================================
+       COLDTRACK IOT GATEWAY
+==========================================
+Tinkercad:
+[http://127.0.0.1:8080](http://127.0.0.1:8080)
+
+ColdTrack API:
+[http://127.0.0.1:5000/api/telemetry](http://127.0.0.1:5000/api/telemetry)
+==========================================
+El Gateway debe permanecer ejecutándose junto con api.py.
+
+11. Iniciar la simulación de Tinkercad
+Con api.py y gateway.py ejecutándose:
+
+Abrir el circuito ColdTrack en Tinkercad.
+
+Abrir el Monitor en serie.
+
+Confirmar que tinkercad-serial-bridge esté habilitado.
+
+Verificar que el servidor configurado sea http://127.0.0.1:8080.
+
+Presionar Iniciar simulación.
+
+El Arduino comenzará a publicar líneas JSON en el Monitor Serie. La extensión enviará el contenido al Gateway mediante GET /send?out=....
+
+La misma extensión consulta periódicamente GET /cmd. Esta segunda ruta está reservada para una futura comunicación desde Python hacia Arduino. Actualmente devuelve una respuesta vacía y es normal observar estas consultas.
+
+12. Flujo esperado
+Cuando el Gateway recibe un JSON válido:
+
+Plaintext
+Tinkercad → GET /send → gateway.py → validación y deduplicación → POST /api/telemetry → api.py
+El Gateway debería mostrar, por ejemplo:
+
+Plaintext
+==========================================
+          COLDTRACK GATEWAY
+==========================================
+Dispositivo:  CT-001
+Uptime:       4070 ms
+Estado:       NORMAL
+Diagnostico:  SIN_FALLAS
+------------------------------------------
+Temp interior:     0.8 C
+Temp condensador:  24.8 C
+Temp succion:      24.8 C
+Presion baja:      47 %
+Presion alta:      10 %
+Compresor:         100 %
+Fan solicitado:    0 %
+Fan PWM:           0
+Fan RPM:           0.0
+------------------------------------------
+Proteccion alta:   False
+Proteccion baja:   False
+Parar compresor:   False
+==========================================
+
+[API] Telemetria enviada correctamente (201)
+En la terminal de la API debería aparecer:
+
+Plaintext
+==========================================
+          COLDTRACK API
+==========================================
+Dispositivo:  CT-001
+Estado:       NORMAL
+Diagnostico:  SIN_FALLAS
+Recibido:     2026-...
+==========================================
+y la petición POST /api/telemetry HTTP/1.1 201.
+
+13. Consultar la última telemetría
+Mientras api.py permanezca ejecutándose se puede consultar la última lectura de un dispositivo. Para CT-001:
+
+Plaintext
+[http://127.0.0.1:5000/api/telemetry/latest/CT-001](http://127.0.0.1:5000/api/telemetry/latest/CT-001)
+La API devolverá el último paquete almacenado en memoria. Ejemplo:
+
+JSON
+{
+  "deviceId": "CT-001",
+  "estado": "NORMAL",
+  "diagnostico": "SIN_FALLAS",
+  "receivedAt": "2026-08-21T09:33:39.583864+00:00"
+}
+14. Endpoints disponibles
+Gateway — puerto 8080
+Método	Endpoint	Descripción
+GET	/send	Recibe la salida del Monitor Serie enviada por la extensión
+GET	/cmd	Endpoint de polling reservado para futuros comandos hacia Arduino
+ColdTrack API — puerto 5000
+Método	Endpoint	Descripción
+GET	/health	Comprueba que la API esté disponible
+POST	/api/telemetry	Recibe telemetría desde el Gateway
+GET	/api/telemetry/latest/<device_id>	Devuelve la última lectura del dispositivo indicado
+15. Prueba recomendada
+Para verificar el flujo completo:
+
+Ejecutar api.py.
+
+Ejecutar gateway.py.
+
+Abrir Tinkercad.
+
+Activar tinkercad-serial-bridge.
+
+Abrir el Monitor Serie.
+
+Iniciar la simulación.
+
+Modificar el sensor de temperatura interior (Por ejemplo: 24.8 °C). Esto puede generar:
+
+Plaintext
+Estado: CRITICO
+Diagnostico: TEMPERATURA_ELEVADA
+Luego modificarlo a un valor normal (por ejemplo: 0.8 °C) y comprobar que el Gateway y la API reciben:
+
+Plaintext
+Estado: NORMAL
+Diagnostico: SIN_FALLAS
+Si ambos cambios aparecen automáticamente en las dos terminales, el flujo está funcionando correctamente.
+"""
+
+with open("README.md", "w", encoding="utf-8") as f:
+f.write(markdown_content)
+
+print("File created successfully.")
+
+
+```text?code_stdout&code_event_index=1
+File created successfully.
+
+Your Markdown file is ready!
+
+Icono de MD
+README
+ MD 
+Abierto
+I've structured the text with proper Markdown headings, tables, formatted code blocks, and lists so you can copy and paste it directly into your GitHub repository as a README.md file.
+
+
+
+
+Gemini es una IA y puede cometer errores.
+
+Defining API Response
 # ColdTrack Gateway
 
-Gateway de integración para el prototipo **ColdTrack**, encargado de recibir la telemetría generada por un Arduino UNO simulado en **Tinkercad**, validarla y reenviarla mediante HTTP a una API local de ColdTrack.
+Gateway de integración para el prototipo ColdTrack, encargado de recibir la telemetría generada por un Arduino UNO simulado en Tinkercad, validarla y reenviarla mediante HTTP a una API local de ColdTrack.
 
 El objetivo de este repositorio es permitir probar el flujo completo sin necesidad de disponer de hardware físico.
 
@@ -18,3 +1215,389 @@ ColdTrack Gateway (Python / Flask) :8080
 HTTP POST
       ↓
 ColdTrack API (Python / Flask) :5000
+```
+
+---
+
+## 1. Componentes del prototipo
+
+Este repositorio utiliza dos procesos Python:
+
+| Componente | Archivo | Puerto | Responsabilidad |
+| --- | --- | --- | --- |
+| ColdTrack Gateway | `gateway.py` | `8080` | Recibe la salida del Monitor Serie de Tinkercad y reenvía la telemetría válida a la API |
+| ColdTrack API | `api.py` | `5000` | Recibe la telemetría mediante `POST /api/telemetry` y la mantiene temporalmente en memoria |
+
+La comunicación entre Tinkercad y el Gateway se realiza mediante la extensión **tinkercad-serial-bridge**.
+
+---
+
+## 2. Requisitos
+
+Para ejecutar el proyecto se necesita:
+
+* Windows 10/11, Linux o macOS.
+* Un navegador basado en Chromium compatible con la extensión utilizada, por ejemplo Microsoft Edge o Google Chrome.
+* Una cuenta de Autodesk con acceso a Tinkercad Circuits.
+* Python 3.10 o superior.
+* Acceso al circuito de Tinkercad utilizado por ColdTrack.
+* La extensión `tinkercad-serial-bridge` instalada y habilitada.
+* *No se necesita un Arduino físico.*
+
+---
+
+## 3. Instalación de Python
+
+### Windows
+
+1. Descargar Python desde el sitio oficial: [https://www.python.org/downloads/](https://www.python.org/downloads/)
+2. Ejecutar el instalador.
+3. Antes de comenzar la instalación, **marcar**:
+   ```text
+   Add python.exe to PATH
+   ```
+4. Finalizar la instalación.
+5. Abrir PowerShell o CMD y comprobar:
+   ```powershell
+   python --version
+   ```
+   Debería mostrarse una versión similar a `Python 3.12.x`.
+
+> Si Windows no reconoce `python`, probar:
+> ```powershell
+> py --version
+> ```
+> En ese caso, los comandos de este README que comienzan con `python` pueden ejecutarse reemplazándolo por `py`.
+
+### Linux
+En distribuciones basadas en Debian/Ubuntu:
+```bash
+sudo apt update
+sudo apt install python3 python3-venv python3-pip
+```
+Comprobar:
+```bash
+python3 --version
+```
+
+### macOS
+Puede utilizarse la versión disponible desde Python.org o instalar Python mediante Homebrew:
+```bash
+brew install python
+```
+Comprobar:
+```bash
+python3 --version
+```
+
+---
+
+## 4. Obtener el proyecto
+
+Clonar el repositorio o descargarlo como ZIP. Luego abrir una terminal dentro de la carpeta del proyecto.
+
+Ejemplo en Windows:
+```powershell
+cd C:\ruta\al\repositorio\ColdTrack-Gateway
+```
+
+La carpeta debería contener, como mínimo:
+```text
+ColdTrack-Gateway/
+├── api.py
+├── gateway.py
+└── README.md
+```
+
+---
+
+## 5. Crear el entorno virtual
+
+Se recomienda utilizar un entorno virtual para mantener aisladas las dependencias del proyecto.
+
+### Windows
+Crear el entorno:
+```powershell
+python -m venv .venv
+```
+Activarlo:
+```powershell
+.venv\Scripts\Activate.ps1
+```
+*Si PowerShell impide ejecutar el script de activación, puede habilitarlo para el usuario actual con:*
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+Luego volver a ejecutar la activación. Cuando esté activo debería aparecer `(.venv)` al comienzo de la terminal.
+
+### Linux/macOS
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+---
+
+## 6. Instalar dependencias
+
+Con el entorno virtual activo:
+```bash
+pip install flask requests
+```
+Las dependencias utilizadas actualmente son:
+* **Flask**: servidor HTTP para el Gateway y la API.
+* **requests**: envío de telemetría desde el Gateway hacia la API.
+
+---
+
+## 7. Instalar la extensión de Tinkercad
+
+El prototipo utiliza la extensión `tinkercad-serial-bridge`. La extensión permite capturar la salida del Monitor Serie de Tinkercad y enviarla a un servidor local.
+
+1. Instalarla desde la tienda de extensiones compatible con el navegador utilizado.
+2. Una vez instalada, abrir el circuito de ColdTrack en Tinkercad.
+3. Abrir el popup de `tinkercad-serial-bridge`.
+4. Configurar:
+   ```text
+   Server:
+   http://127.0.0.1:8080
+
+   Upload Interval(ms):
+   2000
+
+   Cmd Poll Interval(ms):
+   2000
+
+   Enable Bridge:
+   ON
+   ```
+5. Presionar `Save Settings`.
+
+El valor `2000 ms` es adecuado para el prototipo actual y evita generar tráfico HTTP innecesario durante las pruebas.
+> **Nota:** Si se utilizaron anteriormente otras extensiones para capturar el Monitor Serie de Tinkercad, se recomienda deshabilitarlas para evitar interferencias.
+
+---
+
+## 8. Formato enviado por Arduino
+
+El Arduino virtual genera una única línea JSON con la telemetría del equipo. Ejemplo:
+
+```json
+{
+  "deviceId": "CT-001",
+  "uptimeMs": 5070,
+  "tempInterior": 0.8,
+  "tempCondensador": 24.8,
+  "tempSuccion": 24.8,
+  "presionBaja": 47,
+  "presionAlta": 10,
+  "compresor": 100,
+  "fanSolicitado": 0,
+  "fanPWM": 0,
+  "fanRpm": 0.0,
+  "estado": "NORMAL",
+  "diagnostico": "SIN_FALLAS",
+  "proteccionAlta": false,
+  "proteccionBaja": false,
+  "ordenParoCompresor": false
+}
+```
+En el Monitor Serie de Tinkercad el JSON aparece en una sola línea. El diagnóstico es determinado por Arduino. El Gateway no recalcula fallas: únicamente recibe, valida y transporta la información.
+
+---
+
+## 9. Ejecutar ColdTrack API
+
+Abrir una **primera terminal** dentro del proyecto y activar el entorno virtual si todavía no está activo.
+
+### Windows
+```powershell
+.venv\Scripts\Activate.ps1
+python api.py
+```
+
+### Linux/macOS
+```bash
+source .venv/bin/activate
+python3 api.py
+```
+
+Debería mostrarse algo similar a:
+```text
+==========================================
+          COLDTRACK API
+==========================================
+Servidor: http://127.0.0.1:5000
+Endpoint: POST /api/telemetry
+==========================================
+```
+La API debe permanecer ejecutándose.
+
+**Comprobar que la API funciona**
+Abrir en el navegador: `http://127.0.0.1:5000/health`.
+La respuesta esperada es similar a:
+```json
+{
+  "service": "ColdTrack API",
+  "status": "ok"
+}
+```
+
+---
+
+## 10. Ejecutar ColdTrack Gateway
+
+Abrir una **segunda terminal** dentro de la carpeta del proyecto y activar nuevamente el entorno virtual.
+
+### Windows
+```powershell
+.venv\Scripts\Activate.ps1
+python gateway.py
+```
+
+### Linux/macOS
+```bash
+source .venv/bin/activate
+python3 gateway.py
+```
+
+Debería mostrarse:
+```text
+==========================================
+       COLDTRACK IOT GATEWAY
+==========================================
+Tinkercad:
+http://127.0.0.1:8080
+
+ColdTrack API:
+http://127.0.0.1:5000/api/telemetry
+==========================================
+```
+El Gateway debe permanecer ejecutándose junto con `api.py`.
+
+---
+
+## 11. Iniciar la simulación de Tinkercad
+
+Con `api.py` y `gateway.py` ejecutándose:
+1. Abrir el circuito ColdTrack en Tinkercad.
+2. Abrir el Monitor en serie.
+3. Confirmar que `tinkercad-serial-bridge` esté habilitado.
+4. Verificar que el servidor configurado sea `http://127.0.0.1:8080`.
+5. Presionar **Iniciar simulación**.
+
+El Arduino comenzará a publicar líneas JSON en el Monitor Serie. La extensión enviará el contenido al Gateway mediante `GET /send?out=...`.
+
+La misma extensión consulta periódicamente `GET /cmd`. Esta segunda ruta está reservada para una futura comunicación desde Python hacia Arduino. Actualmente devuelve una respuesta vacía y es normal observar estas consultas.
+
+---
+
+## 12. Flujo esperado
+
+Cuando el Gateway recibe un JSON válido:
+```text
+Tinkercad → GET /send → gateway.py → validación y deduplicación → POST /api/telemetry → api.py
+```
+
+El Gateway debería mostrar, por ejemplo:
+```text
+==========================================
+          COLDTRACK GATEWAY
+==========================================
+Dispositivo:  CT-001
+Uptime:       4070 ms
+Estado:       NORMAL
+Diagnostico:  SIN_FALLAS
+------------------------------------------
+Temp interior:     0.8 C
+Temp condensador:  24.8 C
+Temp succion:      24.8 C
+Presion baja:      47 %
+Presion alta:      10 %
+Compresor:         100 %
+Fan solicitado:    0 %
+Fan PWM:           0
+Fan RPM:           0.0
+------------------------------------------
+Proteccion alta:   False
+Proteccion baja:   False
+Parar compresor:   False
+==========================================
+
+[API] Telemetria enviada correctamente (201)
+```
+
+En la terminal de la API debería aparecer:
+```text
+==========================================
+          COLDTRACK API
+==========================================
+Dispositivo:  CT-001
+Estado:       NORMAL
+Diagnostico:  SIN_FALLAS
+Recibido:     2026-...
+==========================================
+```
+y la petición `POST /api/telemetry HTTP/1.1 201`.
+
+---
+
+## 13. Consultar la última telemetría
+
+Mientras `api.py` permanezca ejecutándose se puede consultar la última lectura de un dispositivo. Para `CT-001`:
+```text
+http://127.0.0.1:5000/api/telemetry/latest/CT-001
+```
+
+La API devolverá el último paquete almacenado en memoria. Ejemplo:
+```json
+{
+  "deviceId": "CT-001",
+  "estado": "NORMAL",
+  "diagnostico": "SIN_FALLAS",
+  "receivedAt": "2026-08-21T09:33:39.583864+00:00"
+}
+```
+
+---
+
+## 14. Endpoints disponibles
+
+### Gateway — puerto `8080`
+| Método | Endpoint | Descripción |
+| --- | --- | --- |
+| `GET` | `/send` | Recibe la salida del Monitor Serie enviada por la extensión |
+| `GET` | `/cmd` | Endpoint de polling reservado para futuros comandos hacia Arduino |
+
+### ColdTrack API — puerto `5000`
+| Método | Endpoint | Descripción |
+| --- | --- | --- |
+| `GET` | `/health` | Comprueba que la API esté disponible |
+| `POST` | `/api/telemetry` | Recibe telemetría desde el Gateway |
+| `GET` | `/api/telemetry/latest/<device_id>` | Devuelve la última lectura del dispositivo indicado |
+
+---
+
+## 15. Prueba recomendada
+
+Para verificar el flujo completo:
+1. Ejecutar `api.py`.
+2. Ejecutar `gateway.py`.
+3. Abrir Tinkercad.
+4. Activar `tinkercad-serial-bridge`.
+5. Abrir el Monitor Serie.
+6. Iniciar la simulación.
+7. Modificar el sensor de temperatura interior (Por ejemplo: `24.8 °C`). Esto puede generar:
+   ```text
+   Estado: CRITICO
+   Diagnostico: TEMPERATURA_ELEVADA
+   ```
+8. Luego modificarlo a un valor normal (por ejemplo: `0.8 °C`) y comprobar que el Gateway y la API reciben:
+   ```text
+   Estado: NORMAL
+   Diagnostico: SIN_FALLAS
+   ```
+
+Si ambos cambios aparecen automáticamente en las dos terminales, el flujo está funcionando correctamente.
+README.md
+Mostrando README.md.
