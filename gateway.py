@@ -1,21 +1,36 @@
 import json
 import logging
 
+import requests
 from flask import Flask, request
 
 
 app = Flask(__name__)
 
 
-# Evita llenar la consola con cada GET /cmd
-# y cada fragmento HTTP recibido.
-logging.getLogger("werkzeug").setLevel(logging.ERROR)
+# -------------------------------------------
+# Configuración
+# -------------------------------------------
+
+COLDTRACK_API_URL = (
+    "http://127.0.0.1:5000/api/telemetry"
+)
 
 
-# Guardamos el ultimo paquete procesado
-# para evitar procesarlo dos veces.
+# Evitar llenar la consola con cada petición
+# HTTP que hace la extensión.
+logging.getLogger(
+    "werkzeug"
+).setLevel(logging.ERROR)
+
+
+# Última lectura procesada por dispositivo.
 ultimo_uptime = {}
 
+
+# =====================================================
+# TINKERCAD -> GATEWAY
+# =====================================================
 
 @app.get("/send")
 def recibir_telemetria():
@@ -26,21 +41,21 @@ def recibir_telemetria():
     ).strip()
 
 
-    # -------------------------------------------------
-    # 1. No recibimos nada
-    # -------------------------------------------------
+    # -------------------------------------------
+    # Sin datos
+    # -------------------------------------------
 
     if not salida_serial:
         return "", 200
 
 
-    # -------------------------------------------------
-    # 2. La extensión todavía está transmitiendo
-    #    un JSON incompleto.
+    # -------------------------------------------
+    # La extensión suele mandar el contenido
+    # mientras el JSON todavía está apareciendo
+    # en el Monitor Serie.
     #
-    #    IMPORTANTE:
-    #    No es un error.
-    # -------------------------------------------------
+    # Ignoramos esos fragmentos.
+    # -------------------------------------------
 
     if not (
         salida_serial.startswith("{")
@@ -49,9 +64,9 @@ def recibir_telemetria():
         return "", 200
 
 
-    # -------------------------------------------------
-    # 3. Intentar interpretar JSON completo
-    # -------------------------------------------------
+    # -------------------------------------------
+    # Parsear JSON
+    # -------------------------------------------
 
     try:
 
@@ -61,16 +76,12 @@ def recibir_telemetria():
 
     except json.JSONDecodeError:
 
-        # Puede haber llegado justo durante
-        # una actualización del Monitor Serie.
-        #
-        # Lo ignoramos y esperamos el siguiente.
         return "", 200
 
 
-    # -------------------------------------------------
-    # 4. Identificar dispositivo
-    # -------------------------------------------------
+    # -------------------------------------------
+    # Identificar paquete
+    # -------------------------------------------
 
     device_id = telemetria.get(
         "deviceId",
@@ -82,9 +93,9 @@ def recibir_telemetria():
     )
 
 
-    # -------------------------------------------------
-    # 5. Evitar paquetes duplicados
-    # -------------------------------------------------
+    # -------------------------------------------
+    # Evitar duplicados
+    # -------------------------------------------
 
     if (
         uptime is not None
@@ -96,11 +107,20 @@ def recibir_telemetria():
     ultimo_uptime[device_id] = uptime
 
 
-    # -------------------------------------------------
-    # 6. Mostrar telemetria válida
-    # -------------------------------------------------
+    # -------------------------------------------
+    # Mostrar recepción local
+    # -------------------------------------------
 
     mostrar_telemetria(
+        telemetria
+    )
+
+
+    # -------------------------------------------
+    # Reenviar a ColdTrack API
+    # -------------------------------------------
+
+    enviar_a_api(
         telemetria
     )
 
@@ -108,17 +128,92 @@ def recibir_telemetria():
     return "OK", 200
 
 
+# =====================================================
+# PYTHON -> TINKERCAD
+# =====================================================
+
 @app.get("/cmd")
 def consultar_comandos():
 
     # La extensión consulta periódicamente
-    # si existen comandos para Tinkercad.
+    # si existe algún comando para Arduino.
     #
-    # Todavía no utilizamos comunicación
-    # Python -> Arduino.
+    # Esta función queda preparada para una
+    # futura comunicación bidireccional.
 
     return "", 200
 
+
+# =====================================================
+# GATEWAY -> COLDTRACK API
+# =====================================================
+
+def enviar_a_api(telemetria):
+
+    try:
+
+        respuesta = requests.post(
+            COLDTRACK_API_URL,
+            json=telemetria,
+            timeout=5
+        )
+
+
+        if respuesta.ok:
+
+            print(
+                "[API] Telemetria enviada "
+                f"correctamente "
+                f"({respuesta.status_code})"
+            )
+
+        else:
+
+            print(
+                "[API] La API rechazo la "
+                "telemetria."
+            )
+
+            print(
+                f"[API] HTTP "
+                f"{respuesta.status_code}"
+            )
+
+            print(
+                f"[API] {respuesta.text}"
+            )
+
+
+    except requests.ConnectionError:
+
+        print(
+            "[API] No se pudo conectar con "
+            "ColdTrack API."
+        )
+
+        print(
+            "[API] Verifique que api.py "
+            "este ejecutandose."
+        )
+
+
+    except requests.Timeout:
+
+        print(
+            "[API] Tiempo de espera agotado."
+        )
+
+
+    except requests.RequestException as error:
+
+        print(
+            f"[API] Error HTTP: {error}"
+        )
+
+
+# =====================================================
+# CONSOLA
+# =====================================================
 
 def mostrar_telemetria(telemetria):
 
@@ -126,15 +221,12 @@ def mostrar_telemetria(telemetria):
     print(
         "=========================================="
     )
-
     print(
         "          COLDTRACK GATEWAY"
     )
-
     print(
         "=========================================="
     )
-
 
     print(
         "Dispositivo: ",
@@ -157,11 +249,9 @@ def mostrar_telemetria(telemetria):
         telemetria.get("diagnostico")
     )
 
-
     print(
         "------------------------------------------"
     )
-
 
     print(
         "Temp interior:    ",
@@ -181,7 +271,6 @@ def mostrar_telemetria(telemetria):
         "C"
     )
 
-
     print(
         "Presion baja:     ",
         telemetria.get("presionBaja"),
@@ -194,13 +283,11 @@ def mostrar_telemetria(telemetria):
         "%"
     )
 
-
     print(
         "Compresor:        ",
         telemetria.get("compresor"),
         "%"
     )
-
 
     print(
         "Fan solicitado:   ",
@@ -218,20 +305,22 @@ def mostrar_telemetria(telemetria):
         telemetria.get("fanRpm")
     )
 
-
     print(
         "------------------------------------------"
     )
 
-
     print(
         "Proteccion alta:  ",
-        telemetria.get("proteccionAlta")
+        telemetria.get(
+            "proteccionAlta"
+        )
     )
 
     print(
         "Proteccion baja:  ",
-        telemetria.get("proteccionBaja")
+        telemetria.get(
+            "proteccionBaja"
+        )
     )
 
     print(
@@ -240,7 +329,6 @@ def mostrar_telemetria(telemetria):
             "ordenParoCompresor"
         )
     )
-
 
     print(
         "=========================================="
@@ -253,21 +341,29 @@ if __name__ == "__main__":
     print(
         "=========================================="
     )
-
     print(
         "       COLDTRACK IOT GATEWAY"
     )
-
     print(
         "=========================================="
     )
 
     print(
-        "Esperando telemetria desde Tinkercad..."
+        "Tinkercad:"
     )
 
     print(
-        "Servidor: http://127.0.0.1:8080"
+        "http://127.0.0.1:8080"
+    )
+
+    print()
+
+    print(
+        "ColdTrack API:"
+    )
+
+    print(
+        COLDTRACK_API_URL
     )
 
     print(
