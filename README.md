@@ -1,6 +1,6 @@
 # ColdTrack Gateway
 
-Gateway de integración para el prototipo ColdTrack, encargado de recibir la telemetría generada por un Arduino UNO simulado en Tinkercad, validarla y reenviarla mediante HTTP a una API local de ColdTrack.
+Gateway de integración para el prototipo ColdTrack, encargado de recibir la telemetría generada por un Arduino UNO simulado en Tinkercad [https://www.tinkercad.com/things/2WnGBlR1Mr8-admin-tfi], validarla y reenviarla mediante HTTP a una API local de ColdTrack.
 
 El objetivo de este repositorio es permitir probar el flujo completo sin necesidad de disponer de hardware físico.
 
@@ -21,6 +21,8 @@ ColdTrack API (Python / Flask) :5000
 ```
 
 ---
+
+
 
 ## 1. Componentes del prototipo
 
