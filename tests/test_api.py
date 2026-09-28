@@ -1,4 +1,8 @@
 import apy
+from services.telemetry_service import (
+    evaluate_device_state,
+    should_store_telemetry,
+)
 from storage.database import delete_all_data
 
 
@@ -106,3 +110,24 @@ def test_get_devices_list():
     data = response.get_json()
     assert data["count"] >= 1
     assert any(item["deviceId"] == "CT-002" for item in data["devices"])
+
+
+def test_evaluate_device_state_for_normal_and_fault_states():
+    assert evaluate_device_state({"estado": "NORMAL", "diagnostico": "SIN_FALLAS"}) == "normal"
+    assert evaluate_device_state({"estado": "ALERTA", "diagnostico": "FALLO"}) == "alert"
+    assert evaluate_device_state({"estado": "NORMAL", "diagnostico": "PRESION_ALTA"}) == "alert"
+
+
+def test_should_store_telemetry_uses_fast_interval_when_alerted():
+    last_reading = {"receivedAt": "2026-09-28T12:00:00+00:00"}
+    now = "2026-09-28T12:00:09+00:00"
+
+    assert should_store_telemetry({"estado": "NORMAL", "diagnostico": "SIN_FALLAS"}, last_reading, now) is False
+    assert should_store_telemetry({"estado": "ALERTA", "diagnostico": "FALLO"}, last_reading, now) is True
+
+
+def test_should_store_telemetry_on_recovery_immediately():
+    last_reading = {"receivedAt": "2026-09-28T12:00:00+00:00", "estado": "ALERTA", "diagnostico": "FALLO"}
+    now = "2026-09-28T12:00:09+00:00"
+
+    assert should_store_telemetry({"estado": "NORMAL", "diagnostico": "SIN_FALLAS"}, last_reading, now) is True

@@ -1,11 +1,54 @@
 import json
 import logging
+from datetime import datetime, timezone
 
 import requests
 from flask import Flask, request
 
 
 app = Flask(__name__)
+
+NORMAL_INTERVAL_SECONDS = 300
+ALERT_INTERVAL_SECONDS = 5
+
+
+def get_device_state(telemetria):
+    estado = str(telemetria.get("estado", "")).strip().upper()
+    diagnostico = str(telemetria.get("diagnostico", "")).strip().upper()
+
+    if estado in {"NORMAL"} and diagnostico in {"SIN_FALLAS"}:
+        return "normal"
+
+    if estado in {"ADVERT", "CRITICO"}:
+        return "alert"
+
+    if diagnostico not in {"", "SIN_FALLAS"}:
+        return "alert"
+
+    return "normal"
+
+
+def should_forward_telemetry(device_id, telemetria, now=None):
+    if now is None:
+        now = datetime.now(timezone.utc)
+
+    current_state = get_device_state(telemetria)
+    previous_state = ultimo_estado.get(device_id)
+    last_sent_at = ultimo_envio.get(device_id)
+
+    if last_sent_at is None:
+        return True
+
+    if previous_state != current_state:
+        return True
+
+    if previous_state == "alert" and current_state == "alert":
+        return (now - last_sent_at).total_seconds() >= ALERT_INTERVAL_SECONDS
+
+    if current_state == "normal":
+        return (now - last_sent_at).total_seconds() >= NORMAL_INTERVAL_SECONDS
+
+    return True
 
 
 # -------------------------------------------
@@ -26,6 +69,8 @@ logging.getLogger(
 
 # Última lectura procesada por dispositivo.
 ultimo_uptime = {}
+ultimo_estado = {}
+ultimo_envio = {}
 
 
 # =====================================================
@@ -106,6 +151,13 @@ def recibir_telemetria():
 
     ultimo_uptime[device_id] = uptime
 
+    current_state = get_device_state(telemetria)
+    if not should_forward_telemetry(device_id, telemetria):
+        ultimo_estado[device_id] = current_state
+        return "OK", 200
+
+    ultimo_estado[device_id] = current_state
+    ultimo_envio[device_id] = datetime.now(timezone.utc)
 
     # -------------------------------------------
     # Mostrar recepción local
